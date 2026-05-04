@@ -35,6 +35,7 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 # Config — keep your API key out of git
+.env
 Config.xcconfig
 Secrets.xcconfig
 
