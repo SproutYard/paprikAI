@@ -1,6 +1,6 @@
 import Foundation
 import Observation
-internal import SwiftUI
+import SwiftUI
 
 @Observable
 class RecipeStore {
@@ -14,6 +14,12 @@ class RecipeStore {
 
     func add(_ recipe: ExtractedRecipe) {
         recipes.insert(recipe, at: 0)
+        save()
+    }
+
+    func update(_ recipe: ExtractedRecipe) {
+        guard let index = recipes.firstIndex(where: { $0.id == recipe.id }) else { return }
+        recipes[index] = recipe
         save()
     }
 

@@ -41,8 +41,6 @@ class NewRecipeViewModel {
 struct NewRecipeFlowView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var vm = NewRecipeViewModel()
-    @State private var shareURL: URL? = nil
-    @State private var showShareSheet = false
 
     var store: RecipeStore
 
@@ -57,14 +55,6 @@ struct NewRecipeFlowView: View {
                 } message: {
                     Text(vm.errorMessage ?? "")
                 }
-                .sheet(isPresented: $showShareSheet, onDismiss: {
-                    store.add(vm.recipe)
-                    dismiss()
-                }) {
-                    if let url = shareURL {
-                        ShareSheet(items: [url])
-                    }
-                }
         }
     }
 
@@ -77,8 +67,10 @@ struct NewRecipeFlowView: View {
             processingView
         case .review:
             RecipeReviewView(vm: vm, onExport: { url in
-                shareURL = url
-                showShareSheet = true
+                presentShareSheet(items: [url]) {
+                    store.add(vm.recipe)
+                    dismiss()
+                }
             })
         }
     }
@@ -114,14 +106,27 @@ struct NewRecipeFlowView: View {
     }
 }
 
-// MARK: - Share Sheet
+// MARK: - Share sheet helper
 
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
+/// Presents UIActivityViewController directly on the UIKit hierarchy, avoiding
+/// the blank-overlay issue caused by nesting it inside a SwiftUI sheet.
+func presentShareSheet(items: [Any], onDismiss: @escaping @MainActor () -> Void = {}) {
+    guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+          let root = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController else { return }
 
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    var top = root
+    while let next = top.presentedViewController { top = next }
+
+    let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
+    vc.completionWithItemsHandler = { _, _, _, _ in
+        Task { @MainActor in onDismiss() }
     }
 
-    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
+    if let popover = vc.popoverPresentationController {
+        popover.sourceView = top.view
+        popover.sourceRect = CGRect(x: top.view.bounds.midX, y: top.view.bounds.midY, width: 0, height: 0)
+        popover.permittedArrowDirections = []
+    }
+
+    top.present(vc, animated: true)
 }

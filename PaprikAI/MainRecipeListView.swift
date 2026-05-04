@@ -39,14 +39,16 @@ struct MainRecipeListView: View {
     private var recipeList: some View {
         List {
             ForEach(store.recipes) { recipe in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(recipe.name.isEmpty ? "Untitled Recipe" : recipe.name)
-                        .font(.headline)
-                    Text(Self.dateFormatter.string(from: recipe.createdAt))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(recipe.name.isEmpty ? "Untitled Recipe" : recipe.name)
+                            .font(.headline)
+                        Text(Self.dateFormatter.string(from: recipe.createdAt))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 4)
             }
             .onDelete(perform: store.remove)
         }
