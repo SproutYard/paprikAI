@@ -106,7 +106,7 @@ struct RecipeDetailView: View {
 
     private func handleExport() {
         do {
-            let url = try PaprikaExportService().export(recipe: local, photo: nil)
+            let url = try PaprikaExportService().export(recipe: local)
             store.update(local)
             presentShareSheet(items: [url])
         } catch {

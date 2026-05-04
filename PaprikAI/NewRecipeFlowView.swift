@@ -25,7 +25,7 @@ class NewRecipeViewModel {
     }
 
     func createExportFile() throws -> URL {
-        try PaprikaExportService().export(recipe: recipe, photo: photos.first)
+        try PaprikaExportService().export(recipe: recipe)
     }
 
     func reset() {
