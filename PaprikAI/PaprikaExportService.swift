@@ -15,8 +15,7 @@ struct PaprikaExportService {
         let safeName = sanitized(recipe.name.isEmpty ? "Recipe" : recipe.name)
         let recipeFilename = "\(safeName).paprikarecipe"
         let outputURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString)
-            .appendingPathExtension("paprikarecipes")
+            .appendingPathComponent("\(safeName).paprikarecipes")
 
         try createZip(
             files: [(data: gzipped, filename: recipeFilename)],
