@@ -10,7 +10,7 @@ struct PaprikaExportService {
 
         let safeName = sanitized(recipe.name.isEmpty ? "Recipe" : recipe.name)
         let outputURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("\(safeName).paprikarecipes")
+            .appendingPathComponent("\(safeName).yml")
 
         try data.write(to: outputURL, options: .atomic)
         return outputURL
