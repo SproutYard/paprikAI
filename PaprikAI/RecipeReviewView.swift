@@ -74,16 +74,25 @@ struct RecipeReviewView: View {
                     .textInputAutocapitalization(.never)
             }
 
-            Section {
-                Button {
-                    handleExport()
-                } label: {
-                    Label("Export to Paprika", systemImage: "square.and.arrow.up")
-                        .frame(maxWidth: .infinity)
-                        .bold()
+            Section("Export") {
+                HStack(spacing: 12) {
+                    Button {
+                        handleExport { try vm.createYAMLExportFile() }
+                    } label: {
+                        Text("YAML").bold().frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(vm.recipe.name.isEmpty)
+
+                    Button {
+                        handleExport { try vm.createPaprikaExportFile() }
+                    } label: {
+                        Text("Paprika").bold().frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+                    .disabled(vm.recipe.name.isEmpty)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(vm.recipe.name.isEmpty)
             }
         }
         .alert("Export Error", isPresented: .init(
@@ -96,10 +105,9 @@ struct RecipeReviewView: View {
         }
     }
 
-    private func handleExport() {
+    private func handleExport(_ makeURL: () throws -> URL) {
         do {
-            let url = try vm.createExportFile()
-            onExport(url)
+            onExport(try makeURL())
         } catch {
             exportError = error.localizedDescription
         }

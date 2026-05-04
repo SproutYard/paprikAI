@@ -80,16 +80,25 @@ struct RecipeDetailView: View {
                     .textInputAutocapitalization(.never)
             }
 
-            Section {
-                Button {
-                    handleExport()
-                } label: {
-                    Label("Re-export to Paprika", systemImage: "square.and.arrow.up")
-                        .frame(maxWidth: .infinity)
-                        .bold()
+            Section("Export") {
+                HStack(spacing: 12) {
+                    Button {
+                        handleExport { try PaprikaExportService().exportYAML(recipe: local) }
+                    } label: {
+                        Text("YAML").bold().frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(local.name.isEmpty)
+
+                    Button {
+                        handleExport { try PaprikaExportService().exportPaprika(recipe: local, photo: nil) }
+                    } label: {
+                        Text("Paprika").bold().frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+                    .disabled(local.name.isEmpty)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(local.name.isEmpty)
             }
         }
         .navigationTitle(local.name.isEmpty ? "Recipe" : local.name)
@@ -104,9 +113,9 @@ struct RecipeDetailView: View {
         }
     }
 
-    private func handleExport() {
+    private func handleExport(_ makeURL: () throws -> URL) {
         do {
-            let url = try PaprikaExportService().export(recipe: local)
+            let url = try makeURL()
             store.update(local)
             presentShareSheet(items: [url])
         } catch {
