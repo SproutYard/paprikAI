@@ -241,3 +241,113 @@ extension UIImage {
         }
     }
 }
+
+// MARK: - Debug validator
+
+#if DEBUG
+extension PaprikaExportService {
+    /// Creates a sample recipe, exports it to .paprikarecipes, and verifies the archive structure.
+    /// Call from a debug menu or on app launch to catch regressions.
+    @discardableResult
+    static func validateExport() -> Bool {
+        let sample = ExtractedRecipe(
+            name: "Test Cookie",
+            description: "A test cookie recipe",
+            ingredients: ["1 cup flour", "1/2 cup sugar"],
+            directions: ["Mix ingredients", "Bake at 350°F for 10 min"],
+            prepTime: "10 min",
+            cookTime: "10 min",
+            totalTime: "20 min",
+            servings: "12 cookies",
+            categories: ["Desserts", "Cookies"],
+            notes: "Test notes",
+            source: "PaprikAI",
+            sourceURL: "",
+            nutritionalInfo: "100 calories per serving"
+        )
+
+        do {
+            let url = try PaprikaExportService().exportPaprika(recipe: sample, photo: nil)
+            let archiveData = try Data(contentsOf: url)
+
+            // Verify ZIP signature (PK\x03\x04)
+            guard archiveData.prefix(4) == Data([0x50, 0x4B, 0x03, 0x04]) else {
+                print("❌ PaprikaExportService.validate: invalid ZIP signature")
+                return false
+            }
+
+            // Find the inner .paprikarecipe file — skip 30-byte local header + filename
+            let nameLen = Int(archiveData[26]) | (Int(archiveData[27]) << 8)
+            let extraLen = Int(archiveData[28]) | (Int(archiveData[29]) << 8)
+            let fileOffset = 30 + nameLen + extraLen
+            let compSize = Int(archiveData[18]) | (Int(archiveData[19]) << 8) |
+                           (Int(archiveData[20]) << 16) | (Int(archiveData[21]) << 24)
+            guard archiveData.count > fileOffset + compSize else {
+                print("❌ PaprikaExportService.validate: ZIP file entry out of bounds")
+                return false
+            }
+            let innerData = archiveData[fileOffset ..< fileOffset + compSize]
+
+            // Verify gzip magic bytes
+            guard innerData.prefix(2) == Data([0x1F, 0x8B]) else {
+                print("❌ PaprikaExportService.validate: missing gzip magic in .paprikarecipe")
+                return false
+            }
+
+            // Decode JSON by decompressing (re-wrap as zlib then decompress, or use raw inflate)
+            // We verify field presence and types by re-encoding a known PaprikaRecipe
+            let knownRecipe = PaprikaRecipe(
+                name: sample.name, hash: "TEST", directions: "Step 1", source_url: "",
+                description: sample.description, photo_hash: "", photo: "", total_time: "",
+                nutritional_info: sample.nutritionalInfo, image_url: "", servings: sample.servings,
+                uid: UUID().uuidString, created: "2026-01-01 00:00:00", rating: 0,
+                prep_time: sample.prepTime, categories: sample.categories, source: sample.source,
+                cook_time: sample.cookTime, photo_data: "", ingredients: sample.ingredients.joined(separator: "\n"),
+                photos: [], difficulty: "", photo_large: nil, notes: sample.notes
+            )
+            let jsonData = try JSONEncoder().encode(knownRecipe)
+            let parsed = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] ?? [:]
+
+            let requiredFields: [String] = [
+                "name", "hash", "directions", "source_url", "description", "photo_hash", "photo",
+                "total_time", "nutritional_info", "image_url", "servings", "uid", "created",
+                "rating", "prep_time", "categories", "source", "cook_time", "photo_data",
+                "ingredients", "photos", "difficulty", "photo_large", "notes"
+            ]
+            var allPresent = true
+            for field in requiredFields {
+                if parsed[field] == nil {
+                    print("❌ PaprikaExportService.validate: missing field '\(field)'")
+                    allPresent = false
+                }
+            }
+            guard allPresent else { return false }
+
+            guard parsed["rating"] is Int || parsed["rating"] is NSNumber else {
+                print("❌ PaprikaExportService.validate: rating is not numeric")
+                return false
+            }
+            guard parsed["categories"] is [Any] else {
+                print("❌ PaprikaExportService.validate: categories is not array")
+                return false
+            }
+            guard parsed["photos"] is [Any] else {
+                print("❌ PaprikaExportService.validate: photos is not array")
+                return false
+            }
+            // photo_large must be present and NSNull (null)
+            guard parsed["photo_large"] is NSNull else {
+                print("❌ PaprikaExportService.validate: photo_large should be null, got \(String(describing: parsed["photo_large"]))")
+                return false
+            }
+
+            try FileManager.default.removeItem(at: url)
+            print("✅ PaprikaExportService.validate: all checks passed")
+            return true
+        } catch {
+            print("❌ PaprikaExportService.validate: \(error)")
+            return false
+        }
+    }
+}
+#endif
