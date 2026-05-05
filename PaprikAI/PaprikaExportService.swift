@@ -192,11 +192,26 @@ struct PaprikaExportService {
 
 extension Data {
     func gzipped() throws -> Data {
-        let zlib = try (self as NSData).compressed(using: .zlib) as Data
-        guard zlib.count > 6 else { throw PaprikaExportService.ExportError.encodingFailed }
+        let compressed = try (self as NSData).compressed(using: .zlib) as Data
+        guard compressed.count > 2 else { throw PaprikaExportService.ExportError.encodingFailed }
+
+        // NSData.compressed(using: .zlib) is documented to return RFC 1950 zlib format
+        // (2-byte CMF/FLG header + raw DEFLATE + 4-byte Adler-32), but some iOS builds
+        // return raw DEFLATE with no wrapper. Detect by checking the CMF byte: zlib format
+        // always starts with 0x78 and satisfies (CMF*256+FLG) % 31 == 0 per RFC 1950.
+        let si = compressed.startIndex
+        let cmf = UInt(compressed[si])
+        let flg = UInt(compressed[si + 1])
+        let rawDeflate: Data
+        if cmf == 0x78 && compressed.count > 6 && (cmf * 256 + flg) % 31 == 0 {
+            rawDeflate = Data(compressed[si + 2 ..< compressed.endIndex - 4])
+        } else {
+            rawDeflate = compressed
+        }
+
         var out = Data()
         out.append(contentsOf: [0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff])
-        out.append(zlib[2 ..< zlib.count - 4])
+        out.append(rawDeflate)
         var crc = self.reduce(0xFFFFFFFF as UInt32) { crc, byte in
             Data.gzipCRC32Table[Int((crc ^ UInt32(byte)) & 0xFF)] ^ (crc >> 8)
         } ^ 0xFFFFFFFF
