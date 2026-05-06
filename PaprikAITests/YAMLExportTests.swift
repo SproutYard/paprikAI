@@ -94,6 +94,15 @@ struct YAMLExportTests {
         #expect(out.contains("ingredients: |\n  1 cup flour\n  2 eggs\n  1/2 cup sugar"))
     }
 
+    @Test func ingredientSectionHeadersRenderedWithColon() throws {
+        let recipe = ExtractedRecipe(
+            name: "Salad",
+            ingredients: ["!Salad", "2 cups romaine", "!Dressing", "1/4 cup olive oil"]
+        )
+        let out = try yaml(for: recipe)
+        #expect(out.contains("ingredients: |\n  Salad:\n  2 cups romaine\n  Dressing:\n  1/4 cup olive oil"))
+    }
+
     // MARK: - Directions
 
     @Test func directionsJoinedWithDoubleNewline() throws {

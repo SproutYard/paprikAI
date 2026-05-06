@@ -120,10 +120,12 @@ struct RecipeExtractionService {
         - Preserve the original recipe faithfully. Do not invent missing quantities or steps.
         - If multiple images are provided, merge all information into one recipe.
         - Return ingredients as an ordered array, one ingredient per element. Preserve order.
+        - If the recipe has named ingredient sections (e.g. "Salad", "Dressing", "Sauce", "For the crust"), include the section header as an element prefixed with "!" — for example "!Salad" — immediately before that section's ingredients. Only add section headers when they are explicitly present in the recipe; do not invent them.
         - Return directions as an ordered array, one step per element, without step numbers.
         - Use empty string or empty array for missing fields.
         - If uncertain, note it in the "notes" field.
-        - Ignore page numbers, ads, and unrelated text.
+        - If a book cover or book title is visible, add it to the "notes" field as "From: [Book Title]". If a page number is also visible, append it: "From: [Book Title], page [N]". If only a page number is visible with no book title, add "page [N]" to the notes.
+        - Ignore ads and unrelated text.
         """
     }
 

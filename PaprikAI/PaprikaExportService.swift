@@ -62,7 +62,10 @@ struct PaprikaExportService {
         block("description", recipe.description)
         block("nutritional_info", recipe.nutritionalInfo)
         block("notes", recipe.notes)
-        block("ingredients", recipe.ingredients.joined(separator: "\n"))
+        let ingredientLines = recipe.ingredients.map { line -> String in
+            line.hasPrefix("!") ? "\(line.dropFirst()):" : line
+        }
+        block("ingredients", ingredientLines.joined(separator: "\n"))
         block("directions", recipe.directions.joined(separator: "\n\n"))
 
         return lines.joined(separator: "\n") + "\n"
