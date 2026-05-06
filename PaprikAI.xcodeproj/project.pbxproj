@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		8F22BCC52FA91C4200BBAFD2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8F22BCA22FA91C3F00BBAFD2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8F22BCA92FA91C4000BBAFD2;
+			remoteInfo = PaprikAI;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		8F22BCAA2FA91C4000BBAFD2 /* PaprikAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PaprikAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8F22BCC62FA91C4200BBAFD2 /* PaprikAITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PaprikAITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,22 @@
 			path = PaprikAI;
 			sourceTree = "<group>";
 		};
+		8F22BCC72FA91C4200BBAFD2 /* PaprikAITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PaprikAITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		8F22BCA72FA91C4000BBAFD2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8F22BCC22FA91C4200BBAFD2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				8F22BCAC2FA91C4000BBAFD2 /* PaprikAI */,
+				8F22BCC72FA91C4200BBAFD2 /* PaprikAITests */,
 				8F22BCAB2FA91C4000BBAFD2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				8F22BCAA2FA91C4000BBAFD2 /* PaprikAI.app */,
+				8F22BCC62FA91C4200BBAFD2 /* PaprikAITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +95,29 @@
 			productReference = 8F22BCAA2FA91C4000BBAFD2 /* PaprikAI.app */;
 			productType = "com.apple.product-type.application";
 		};
+		8F22BCC02FA91C4200BBAFD2 /* PaprikAITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8F22BCCA2FA91C4200BBAFD2 /* Build configuration list for PBXNativeTarget "PaprikAITests" */;
+			buildPhases = (
+				8F22BCC12FA91C4200BBAFD2 /* Sources */,
+				8F22BCC22FA91C4200BBAFD2 /* Frameworks */,
+				8F22BCC32FA91C4200BBAFD2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8F22BCC42FA91C4200BBAFD2 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				8F22BCC72FA91C4200BBAFD2 /* PaprikAITests */,
+			);
+			name = PaprikAITests;
+			packageProductDependencies = (
+			);
+			productName = PaprikAITests;
+			productReference = 8F22BCC62FA91C4200BBAFD2 /* PaprikAITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +130,10 @@
 				TargetAttributes = {
 					8F22BCA92FA91C4000BBAFD2 = {
 						CreatedOnToolsVersion = 26.3;
+					};
+					8F22BCC02FA91C4200BBAFD2 = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = 8F22BCA92FA91C4000BBAFD2;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				8F22BCA92FA91C4000BBAFD2 /* PaprikAI */,
+				8F22BCC02FA91C4200BBAFD2 /* PaprikAITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		8F22BCA82FA91C4000BBAFD2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8F22BCC32FA91C4200BBAFD2 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8F22BCC12FA91C4200BBAFD2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8F22BCC42FA91C4200BBAFD2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8F22BCA92FA91C4000BBAFD2 /* PaprikAI */;
+			targetProxy = 8F22BCC52FA91C4200BBAFD2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8F22BCB32FA91C4100BBAFD2 /* Debug */ = {
@@ -312,6 +387,44 @@
 			};
 			name = Release;
 		};
+		8F22BCC82FA91C4200BBAFD2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = AJ67BA669Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sproutyard.PaprikAITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PaprikAI.app/PaprikAI";
+			};
+			name = Debug;
+		};
+		8F22BCC92FA91C4200BBAFD2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = AJ67BA669Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sproutyard.PaprikAITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PaprikAI.app/PaprikAI";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -329,6 +442,15 @@
 			buildConfigurations = (
 				8F22BCB62FA91C4100BBAFD2 /* Debug */,
 				8F22BCB72FA91C4100BBAFD2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8F22BCCA2FA91C4200BBAFD2 /* Build configuration list for PBXNativeTarget "PaprikAITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F22BCC82FA91C4200BBAFD2 /* Debug */,
+				8F22BCC92FA91C4200BBAFD2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
