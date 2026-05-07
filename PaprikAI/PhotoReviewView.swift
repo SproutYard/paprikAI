@@ -71,11 +71,13 @@ struct PhotoReviewView: View {
                 showCamera = true
             } label: {
                 Label("Camera", systemImage: "camera")
+                    .fixedSize(horizontal: true, vertical: true)
             }
             .buttonStyle(.bordered)
 
             PhotosPicker(selection: $pickerItems, maxSelectionCount: 10, matching: .images) {
                 Label("Library", systemImage: "photo.on.rectangle")
+                    .fixedSize(horizontal: true, vertical: true)
             }
             .buttonStyle(.bordered)
 
@@ -91,6 +93,7 @@ struct PhotoReviewView: View {
             .disabled(vm.photos.isEmpty)
         }
         .padding()
+        .tint(.purple)
     }
 
     private var emptyState: some View {

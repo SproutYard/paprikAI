@@ -29,7 +29,10 @@ class NewRecipeViewModel {
     }
 
     func createPaprikaExportFile() throws -> URL {
-        try PaprikaExportService().exportPaprika(recipe: recipe, photo: photos.first)
+        let photo = photos.indices.contains(recipe.selectedPhotoIndex)
+            ? photos[recipe.selectedPhotoIndex]
+            : photos.first
+        return try PaprikaExportService().exportPaprika(recipe: recipe, photo: photo)
     }
 
     func reset() {

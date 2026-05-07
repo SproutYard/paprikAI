@@ -76,6 +76,8 @@ struct RecipeExtractionService {
             directions = s.components(separatedBy: "\n\n").filter { !$0.isEmpty }
         } else { directions = [] }
 
+        let bestPhotoIndex = r["best_photo_index"] as? Int ?? 0
+
         return ExtractedRecipe(
             name: str("name"),
             description: str("description"),
@@ -89,7 +91,8 @@ struct RecipeExtractionService {
             notes: str("notes"),
             source: str("source"),
             sourceURL: str("source_url"),
-            nutritionalInfo: str("nutritional_info")
+            nutritionalInfo: str("nutritional_info"),
+            selectedPhotoIndex: bestPhotoIndex
         )
     }
 
@@ -114,7 +117,8 @@ struct RecipeExtractionService {
           "notes": "Tips or notes from the recipe",
           "source": "Publication or website name if visible",
           "source_url": "URL if visible",
-          "nutritional_info": "Nutritional info if present"
+          "nutritional_info": "Nutritional info if present",
+          "best_photo_index": 0
         }
 
         Rules:
@@ -128,6 +132,7 @@ struct RecipeExtractionService {
         - If uncertain, note it in the "notes" field.
         - If a book cover or book title is visible, add it to the "notes" field as "From: [Book Title]". If a page number is also visible, append it: "From: [Book Title], page [N]". If only a page number is visible with no book title, add "page [N]" to the notes.
         - Ignore ads and unrelated text.
+        - If multiple images are provided, set "best_photo_index" to the 0-based index of the image that would make the best recipe hero photo (prefer a plated or finished dish over text, recipe cards, or ingredient shots). If only one image is provided or no image shows food, use 0.
         """
     }
 

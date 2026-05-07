@@ -15,6 +15,7 @@ struct ExtractedRecipe: Codable, Identifiable {
     var source: String
     var sourceURL: String
     var nutritionalInfo: String
+    var selectedPhotoIndex: Int
     var createdAt: Date
 
     init(
@@ -32,6 +33,7 @@ struct ExtractedRecipe: Codable, Identifiable {
         source: String = "PaprikAI",
         sourceURL: String = "",
         nutritionalInfo: String = "",
+        selectedPhotoIndex: Int = 0,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -48,6 +50,7 @@ struct ExtractedRecipe: Codable, Identifiable {
         self.source = source
         self.sourceURL = sourceURL
         self.nutritionalInfo = nutritionalInfo
+        self.selectedPhotoIndex = selectedPhotoIndex
         self.createdAt = createdAt
     }
 }
