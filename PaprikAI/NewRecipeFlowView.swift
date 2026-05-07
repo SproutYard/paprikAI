@@ -83,14 +83,7 @@ struct NewRecipeFlowView: View {
     }
 
     private var processingView: some View {
-        VStack(spacing: 20) {
-            ProgressView()
-                .controlSize(.large)
-            Text("Extracting recipe…")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        PhotoDeckProcessingView(photos: vm.photos)
     }
 
     private var navTitle: String {
@@ -110,6 +103,93 @@ struct NewRecipeFlowView: View {
 
     private var showErrorBinding: Binding<Bool> {
         Binding(get: { vm.errorMessage != nil }, set: { if !$0 { vm.errorMessage = nil } })
+    }
+}
+
+// MARK: - Processing animation
+
+private struct PhotoDeckProcessingView: View {
+    let photos: [UIImage]
+
+    private var displayPhotos: [UIImage] { Array(photos.prefix(3)) }
+    private let rotations: [Double] = [-3, -14, 12]
+    private let xOffsets: [CGFloat] = [0, -85, 85]
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            TimelineView(.animation) { ctx in
+                photoStack(t: ctx.date.timeIntervalSinceReferenceDate)
+            }
+            Spacer().frame(height: 44)
+            VStack(spacing: 8) {
+                ProgressView().tint(.purple)
+                Text("Extracting recipe…")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func photoStack(t: Double) -> some View {
+        ZStack {
+            ForEach(Array(displayPhotos.enumerated()), id: \.offset) { i, photo in
+                let phase = Double(i) * 1.8
+                let floatY = CGFloat(sin(t * 0.6 + phase) * 13)
+                let xDrift = CGFloat(sin(t * 0.45 + phase) * 8)
+                let wobble = sin(t * 0.3 + phase) * 2.0
+                let shimmerX: CGFloat = i == 0 ? CGFloat(sin(t * 0.7) * 155) : -300
+
+                PolaroidCard(image: photo, shimmerX: shimmerX)
+                    .rotationEffect(.degrees(rotations[i % rotations.count] + wobble))
+                    .offset(x: xOffsets[i % xOffsets.count] + xDrift, y: floatY)
+                    .zIndex(Double(photos.count - i))
+            }
+        }
+        .frame(height: 300)
+    }
+}
+
+private struct PolaroidCard: View {
+    let image: UIImage
+    let shimmerX: CGFloat
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ZStack {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 180, height: 170)
+
+                LinearGradient(
+                    colors: [.clear, .white.opacity(0.22), .clear],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: 90)
+                .offset(x: shimmerX)
+            }
+            .frame(width: 180, height: 170)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(Color.black.opacity(0.07), lineWidth: 1)
+            )
+
+            // Polaroid bottom strip
+            Rectangle()
+                .fill(Color(white: 0.98))
+                .frame(width: 180, height: 46)
+        }
+        .padding(10)
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color(white: 0.975))
+                .shadow(color: .black.opacity(0.22), radius: 12, x: 1, y: 6)
+        )
     }
 }
 

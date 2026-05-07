@@ -54,3 +54,14 @@ struct ExtractedRecipe: Codable, Identifiable {
         self.createdAt = createdAt
     }
 }
+
+extension ExtractedRecipe {
+    enum IngredientRow {
+        case header(String)
+        case item(String)
+    }
+
+    var ingredientRows: [IngredientRow] {
+        ingredients.map { $0.hasPrefix("!") ? .header(String($0.dropFirst())) : .item($0) }
+    }
+}
