@@ -27,6 +27,7 @@ struct RecipeExtractionService {
                 ["role": "user", "content": contentParts]
             ],
             "response_format": ["type": "json_object"],
+            "temperature": 0,
             "max_tokens": 4096
         ]
 
@@ -93,7 +94,7 @@ struct RecipeExtractionService {
     }
 
     private var systemPrompt: String {
-        "You are a professional recipe extraction assistant. Extract structured recipe data from photos faithfully and precisely. Do not invent information."
+        "You are a professional recipe transcription assistant. Your highest priority is accuracy: every quantity and ingredient must match the source image exactly. Do not invent, round, or reinterpret any information."
     }
 
     private var userPrompt: String {
@@ -118,6 +119,7 @@ struct RecipeExtractionService {
 
         Rules:
         - Preserve the original recipe faithfully. Do not invent missing quantities or steps.
+        - Copy ingredient quantities character-for-character from the image. Do not round, simplify, or reinterpret fractions — for example, "1/2" must remain "1/2", never "2" or "0.5". After extracting all ingredients, verify each quantity against the image before returning. If a quantity is unclear, transcribe your best read and append "(unclear)" rather than guessing a different value.
         - If multiple images are provided, merge all information into one recipe.
         - Return ingredients as an ordered array, one ingredient per element. Preserve order.
         - If the recipe has named ingredient sections (e.g. "Salad", "Dressing", "Sauce", "For the crust"), include the section header as an element prefixed with "!" — for example "!Salad" — immediately before that section's ingredients. Only add section headers when they are explicitly present in the recipe; do not invent them.
