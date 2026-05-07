@@ -41,3 +41,4 @@ Secrets.xcconfig
 
 # Claude Code internal
 .claude/
+/PaprikAI/.env
