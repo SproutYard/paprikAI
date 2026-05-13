@@ -19,7 +19,6 @@ enum APIConfig {
     // Reads .env from the compile-time source path (Simulator) or the app bundle (device).
     // Only runs in DEBUG — has no effect in Release builds.
     private static var keyFromDotEnv: String? {
-        #if DEBUG
         let urls: [URL] = [
             URL(fileURLWithPath: #filePath)
                 .deletingLastPathComponent()  // PaprikAI/
@@ -38,8 +37,5 @@ enum APIConfig {
             }
         }
         return nil
-        #else
-        return nil
-        #endif
     }
 }
