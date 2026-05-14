@@ -17,6 +17,14 @@ struct ExtractedRecipe: Codable, Identifiable {
     var nutritionalInfo: String
     var selectedPhotoIndex: Int
     var createdAt: Date
+    var ingredientsPhotoIndex: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, description, ingredients, directions
+        case prepTime, cookTime, totalTime, servings, categories
+        case notes, source, sourceURL, nutritionalInfo
+        case selectedPhotoIndex, createdAt
+    }
 
     init(
         id: UUID = UUID(),
@@ -34,7 +42,8 @@ struct ExtractedRecipe: Codable, Identifiable {
         sourceURL: String = "",
         nutritionalInfo: String = "",
         selectedPhotoIndex: Int = 0,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        ingredientsPhotoIndex: Int? = nil
     ) {
         self.id = id
         self.name = name
@@ -52,6 +61,7 @@ struct ExtractedRecipe: Codable, Identifiable {
         self.nutritionalInfo = nutritionalInfo
         self.selectedPhotoIndex = selectedPhotoIndex
         self.createdAt = createdAt
+        self.ingredientsPhotoIndex = ingredientsPhotoIndex
     }
 }
 

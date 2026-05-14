@@ -9,6 +9,22 @@ struct RecipeExtractionService {
         let key = APIConfig.openAIKey
         guard !key.isEmpty else { throw ExtractionError.missingAPIKey }
 
+        var recipe = try await runExtraction(images: images, key: key)
+
+        if let idx = recipe.ingredientsPhotoIndex, idx < images.count {
+            let verified = try await verifyIngredients(
+                recipe.ingredients,
+                in: images[idx],
+                key: key
+            )
+            recipe.ingredients = verified
+        }
+
+        recipe.ingredientsPhotoIndex = nil
+        return recipe
+    }
+
+    private func runExtraction(images: [UIImage], key: String) async throws -> ExtractedRecipe {
         var contentParts: [[String: Any]] = [["type": "text", "text": userPrompt]]
 
         for image in images {
@@ -20,6 +36,45 @@ struct RecipeExtractionService {
             ])
         }
 
+        let data = try await post(contentParts: contentParts, key: key)
+        return try parseResponse(data)
+    }
+
+    private func verifyIngredients(_ ingredients: [String], in image: UIImage, key: String) async throws -> [String] {
+        guard let jpegData = image.jpegData(compressionQuality: 0.85) else { return ingredients }
+        let b64 = jpegData.base64EncodedString()
+
+        let extracted = ingredients.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n")
+        let prompt = """
+        You are verifying a recipe ingredient list against a source image. Re-read every ingredient from the image character-for-character and compare it to the list below.
+
+        Extracted list:
+        \(extracted)
+
+        Return a JSON object with a single key "ingredients" containing the corrected array. Preserve the original order. Copy quantities exactly as they appear in the image — do not round, simplify, or reinterpret fractions. If an ingredient from the list is not visible in the image, keep it unchanged. If a quantity is unclear, append "(unclear)".
+        """
+
+        let contentParts: [[String: Any]] = [
+            ["type": "text", "text": prompt],
+            ["type": "image_url", "image_url": ["url": "data:image/jpeg;base64,\(b64)", "detail": "high"]]
+        ]
+
+        let data = try await post(contentParts: contentParts, key: key)
+
+        guard let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let choices = root["choices"] as? [[String: Any]],
+              let message = choices.first?["message"] as? [String: Any],
+              let content = message["content"] as? String,
+              let contentData = content.data(using: .utf8),
+              let r = try JSONSerialization.jsonObject(with: contentData) as? [String: Any],
+              let verified = r["ingredients"] as? [String] else {
+            return ingredients
+        }
+
+        return verified
+    }
+
+    private func post(contentParts: [[String: Any]], key: String) async throws -> Data {
         let body: [String: Any] = [
             "model": APIConfig.openAIModel,
             "messages": [
@@ -45,7 +100,7 @@ struct RecipeExtractionService {
             throw ExtractionError.apiError(http.statusCode, msg)
         }
 
-        return try parseResponse(data)
+        return data
     }
 
     private func parseResponse(_ data: Data) throws -> ExtractedRecipe {
@@ -77,6 +132,7 @@ struct RecipeExtractionService {
         } else { directions = [] }
 
         let bestPhotoIndex = r["best_photo_index"] as? Int ?? 0
+        let ingredientsPhotoIndex = r["ingredients_photo_index"] as? Int
 
         return ExtractedRecipe(
             name: str("name"),
@@ -92,7 +148,8 @@ struct RecipeExtractionService {
             source: str("source"),
             sourceURL: str("source_url"),
             nutritionalInfo: str("nutritional_info"),
-            selectedPhotoIndex: bestPhotoIndex
+            selectedPhotoIndex: bestPhotoIndex,
+            ingredientsPhotoIndex: ingredientsPhotoIndex
         )
     }
 
@@ -117,7 +174,8 @@ struct RecipeExtractionService {
           "source": "Publication or website name if visible",
           "source_url": "URL if visible",
           "nutritional_info": "Nutritional info if present",
-          "best_photo_index": 0
+          "best_photo_index": 0,
+          "ingredients_photo_index": 0
         }
 
         Rules:
@@ -132,6 +190,7 @@ struct RecipeExtractionService {
         - If a book cover or book title is visible, add it to the "notes" field as "From: [Book Title]". If a page number is also visible, append it: "From: [Book Title], page [N]". If only a page number is visible with no book title, add "page [N]" to the notes.
         - Ignore ads and unrelated text.
         - If multiple images are provided, set "best_photo_index" to the 0-based index of the image that would make the best recipe hero photo (prefer a plated or finished dish over text, recipe cards, or ingredient shots). If only one image is provided or no image shows food, use 0.
+        - Set "ingredients_photo_index" to the 0-based index of the image that contains the complete ingredients list. If only one image is provided, use 0. If no single image clearly contains the ingredients list, omit this field.
         """
     }
 
